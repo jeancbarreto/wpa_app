@@ -13,9 +13,11 @@ import { withStyles } from "@material-ui/core/styles";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
+import Avatar from "@material-ui/core/Avatar";
 import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -84,14 +86,21 @@ const styles = theme => ({
     [theme.breakpoints.up("md")]: {
       display: "none"
     }
+  },
+  Photo: {
+    width: "100%"
   }
 });
 
 class PrimarySearchAppBar extends React.Component {
-  state = {
-    anchorEl: null,
-    mobileMoreAnchorEl: null
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      anchorEl: null,
+      mobileMoreAnchorEl: null,
+      name: ""
+    };
+  }
 
   handleProfileMenuOpen = event => {
     this.setState({ anchorEl: event.currentTarget });
@@ -115,6 +124,8 @@ class PrimarySearchAppBar extends React.Component {
     const { classes } = this.props;
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+    const user = this.props.user;
+    const title = this.props.title;
 
     const renderMenu = (
       <Menu
@@ -124,7 +135,11 @@ class PrimarySearchAppBar extends React.Component {
         open={isMenuOpen}
         onClose={this.handleMenuClose}
       >
-        <MenuItem onClick={this.handleMenuClose}>Perfil</MenuItem>
+        <MenuItem onClick={this.handleMenuClose}>
+          <Avatar aria-label="Recipe" className={classes.avatar}>
+            <img src={user.photoURL} alt="" className={classes.Photo} />
+          </Avatar>
+        </MenuItem>
         <MenuItem onClick={this.handleMenuClose}>Mi Cuenta</MenuItem>
       </Menu>
     );
@@ -164,7 +179,7 @@ class PrimarySearchAppBar extends React.Component {
 
     return (
       <div className={classes.root}>
-        <AppBar position="static">
+        <AppBar position="fixed">
           <Toolbar>
             <IconButton
               className={classes.menuButton}
@@ -173,9 +188,7 @@ class PrimarySearchAppBar extends React.Component {
             >
               <MenuIcon />
             </IconButton>
-            <center>
-              <h5>App</h5>
-            </center>
+            <center>{title}</center>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               <IconButton color="inherit">
@@ -203,7 +216,9 @@ class PrimarySearchAppBar extends React.Component {
                 onClick={this.handleMobileMenuOpen}
                 color="inherit"
               >
-                <MoreIcon />
+                <Avatar aria-label="Recipe" className={classes.avatar}>
+                  <img src={user.photoURL} alt="" className={classes.Photo} />
+                </Avatar>
               </IconButton>
             </div>
           </Toolbar>

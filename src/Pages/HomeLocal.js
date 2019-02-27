@@ -8,14 +8,16 @@ import ListSubheader from "@material-ui/core/ListSubheader";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from "@material-ui/icons/Info";
 import axios from "axios";
+import Menu from "../Components/Menu";
+import Cookies from "universal-cookie";
+import "../App.css";
 
 const styles = theme => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "space-around",
-    overflow: "hidden",
-    backgroundColor: theme.palette.background.paper
+    overflow: "hidden"
   },
   gridList: {
     width: "100%",
@@ -67,9 +69,15 @@ class Home extends Component {
   };
 
   render() {
+    const cookies = new Cookies();
+    const user = cookies.get("user");
     const { classes } = this.props;
     return (
-      <div className={classes.root} item xs={12}>
+      <div className={classes.root}>
+        <div>
+          {user !== undefined ? <Menu user={user} title="Locales" /> : null}
+        </div>
+
         <GridList cellHeight={180} className={classes.gridList}>
           <GridListTile key="Subheader" cols={2} style={{ height: "auto" }}>
             <ListSubheader component="div">Locales</ListSubheader>
@@ -77,15 +85,17 @@ class Home extends Component {
           {this.state.data.map(tile => (
             <GridListTile key={tile.img}>
               <img src={tile.image} alt={tile.name} />
-              <GridListTileBar
-                title={tile.name}
-                subtitle={<span>by: {tile.created_at}</span>}
-                actionIcon={
-                  <IconButton className={classes.icon}>
-                    <InfoIcon />
-                  </IconButton>
-                }
-              />
+              <a href="/detail/">
+                <GridListTileBar
+                  title={tile.name}
+                  subtitle={<span>by: {tile.created_at}</span>}
+                  actionIcon={
+                    <IconButton className={classes.icon}>
+                      <InfoIcon />
+                    </IconButton>
+                  }
+                />
+              </a>
             </GridListTile>
           ))}
         </GridList>

@@ -8,7 +8,7 @@ import * as serviceWorker from "./serviceWorker";
 
 //Paginas
 import Home from "../src/Pages/HomeLocal";
-import Menu from "../src/Components/Menu";
+import Detail from "../src/Pages/DetailsLocal";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCRTvsrNppBUNVBWePdO_4ISoWiKItupw4",
@@ -25,12 +25,12 @@ const Root = () => {
       <Switch>
         <Route exact path="/" component={App} />
         <Route exact path="/home" component={Home} />
+        <Route path="/detail/:id" component={Detail} />
       </Switch>
     </Router>
   );
 };
 
-ReactDOM.render(<Menu />, document.querySelector("#menu"));
 ReactDOM.render(<Root />, document.getElementById("root"));
 
 // If you want your app to work offline and load faster, you can change
