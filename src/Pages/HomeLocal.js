@@ -25,6 +25,11 @@ const styles = theme => ({
   },
   icon: {
     color: "rgba(255, 255, 255, 0.54)"
+  },
+  GridList_item: {
+    width: "100%",
+    height: 227,
+    padding: 2
   }
 });
 const config = {
@@ -33,7 +38,7 @@ const config = {
     Accept: "application/json"
   }
 };
-
+const cookies = new Cookies();
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -69,7 +74,6 @@ class Home extends Component {
   };
 
   render() {
-    const cookies = new Cookies();
     const user = cookies.get("user");
     const { classes } = this.props;
     return (
@@ -83,9 +87,10 @@ class Home extends Component {
             <ListSubheader component="div">Locales</ListSubheader>
           </GridListTile>
           {this.state.data.map(tile => (
-            <GridListTile key={tile.img}>
+            <GridListTile key={tile.img} className={classes.GridList_item}>
               <img src={tile.image} alt={tile.name} />
-              <a href="/detail/">
+
+              <a href={tile.id ? "/detail/" + tile.id + "" : "/detail"}>
                 <GridListTileBar
                   title={tile.name}
                   subtitle={<span>by: {tile.created_at}</span>}

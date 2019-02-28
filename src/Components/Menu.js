@@ -11,13 +11,12 @@ import Menu from "@material-ui/core/Menu";
 import { fade } from "@material-ui/core/styles/colorManipulator";
 import { withStyles } from "@material-ui/core/styles";
 import MenuIcon from "@material-ui/icons/Menu";
+import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Avatar from "@material-ui/core/Avatar";
 import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import MoreIcon from "@material-ui/icons/MoreVert";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -126,6 +125,7 @@ class PrimarySearchAppBar extends React.Component {
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
     const user = this.props.user;
     const title = this.props.title;
+    const type = this.props.type;
 
     const renderMenu = (
       <Menu
@@ -181,13 +181,21 @@ class PrimarySearchAppBar extends React.Component {
       <div className={classes.root}>
         <AppBar position="fixed">
           <Toolbar>
-            <IconButton
-              className={classes.menuButton}
-              color="inherit"
-              aria-label="Open drawer"
-            >
-              <MenuIcon />
-            </IconButton>
+            {type !== undefined ? (
+              <a href="javascript:window.history.back();">
+                <IconButton>
+                  <KeyboardBackspaceIcon />
+                </IconButton>
+              </a>
+            ) : (
+              <IconButton
+                className={classes.menuButton}
+                color="inherit"
+                aria-label="Open drawer"
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
             <center>{title}</center>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>

@@ -41,7 +41,20 @@ class App extends Component {
       user: [],
       Login: false
     };
+
+    this.handleValidateExisteCookie();
   }
+
+  handleValidateExisteCookie = () => {
+    const cookies = new Cookies();
+    if (this.state.user === []) {
+      this.setState({ user: cookies.get("user") });
+
+      if (this.state.user !== []) {
+        this.setState({ Login: true });
+      }
+    }
+  };
 
   handleAuth = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -66,6 +79,7 @@ class App extends Component {
 
   render() {
     const { classes } = this.props;
+    this.handleValidateExisteCookie();
     return (
       <div className="App">
         {this.state.Login ? <Menu user={this.state.user} /> : null}
