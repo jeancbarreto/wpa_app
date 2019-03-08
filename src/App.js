@@ -11,6 +11,14 @@ import Fade from "@material-ui/core/Fade";
 import Menu from "./Components/Menu";
 import Locales from "./Pages/HomeLocal";
 import "./App.css";
+import Axios from "axios";
+
+const config = {
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json"
+  }
+};
 
 const styles = theme => ({
   fab: {
@@ -69,12 +77,29 @@ class App extends Component {
   };
 
   handleChangeUser = result => {
-    let d = new Date();
-    d.setTime(d.getTime() + 60 * 1000);
-
     const cookies = new Cookies();
     this.setState({ user: result.user, Login: true });
-    cookies.set("user", this.state.user, { path: "/", expires: d });
+    cookies.set("user", this.state.user, { path: "/" });
+
+    console.log(this.state.user);
+    Axios.post(
+      "http://api-wpa.herokuapp.com/users",
+      {
+        name: this.state.user.displayName,
+        email: this.state.user.email
+      },
+      config
+    )
+      .then(result => {
+        if (result.status === 200) {
+          console.log(result.data.response, "y rol: ", result.data.rol);
+        } else {
+          console.log("Error...");
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   render() {

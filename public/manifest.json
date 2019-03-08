@@ -14,5 +14,6 @@
   "theme_color": "#000000",
   "background_color": "#000000",
   "related_applications": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "pathApi": "http: //192.168.0.18:3000/locales"
 }

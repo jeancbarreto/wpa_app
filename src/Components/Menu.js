@@ -12,7 +12,7 @@ import { fade } from "@material-ui/core/styles/colorManipulator";
 import { withStyles } from "@material-ui/core/styles";
 import MenuIcon from "@material-ui/icons/Menu";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
-import SearchIcon from "@material-ui/icons/Search";
+import ShoppinCart from "@material-ui/icons/ShoppingCart";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Avatar from "@material-ui/core/Avatar";
 import MailIcon from "@material-ui/icons/Mail";
@@ -224,6 +224,10 @@ class PrimarySearchAppBar extends React.Component {
                 onClick={this.handleMobileMenuOpen}
                 color="inherit"
               >
+                <IconButton>
+                  <ShoppinCart /> :
+                </IconButton>
+
                 <Avatar aria-label="Recipe" className={classes.avatar}>
                   <img src={user.photoURL} alt="" className={classes.Photo} />
                 </Avatar>

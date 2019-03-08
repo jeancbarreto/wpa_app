@@ -2,6 +2,10 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
+import IconButton from "@material-ui/core/IconButton";
+import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
+import RemoveCircleOutline from "@material-ui/icons/RemoveCircleOutline";
+import Icon from "@material-ui/core/Icon";
 import Grid from "@material-ui/core/Grid";
 import axios from "axios";
 import Menu from "../Components/Menu";
@@ -17,6 +21,8 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import Input from "@material-ui/core/Input";
+import Fade from "@material-ui/core/Fade";
 import "../App.css";
 
 const styles = theme => ({
@@ -43,10 +49,21 @@ const styles = theme => ({
     height: "100%"
   },
   card: {
-    maxWidth: 345
+    maxWidth: "100%",
+    MarginBottom: 10
   },
   media: {
     height: 140
+  },
+  botonSendToCar: {
+    display: "block",
+    width: "100%",
+    position: "fixed",
+    zIndex: 1000,
+    bottom: 0
+  },
+  btnHideSendToCar: {
+    display: "none"
   }
 });
 
@@ -76,9 +93,14 @@ class Details extends Component {
 
     this.state = {
       Local: [],
-      Productos: [],
-      value: 0
+      ProductosMarket: [],
+      ProductsSend: [],
+      value: 0,
+      productsInCar: false
     };
+
+    const idProducto = this.props.match.params.id;
+    this.handleSearchLocal(idProducto);
   }
 
   handleChange = (event, value) => {
@@ -91,12 +113,12 @@ class Details extends Component {
 
   handleSearchLocal = id => {
     axios
-      .get("https://api-wpa.herokuapp.com/locales/" + id + "", config)
+      .get("http://api-wpa.herokuapp.com/locales/" + id + "", config)
       .then(result => {
         if (result.status === 200) {
           this.setState({
             Local: result.data.local,
-            Productos: result.data.products
+            ProductosMarket: result.data.products
           });
         }
       })
@@ -105,13 +127,80 @@ class Details extends Component {
       });
   };
 
+  handleAddProduct = (data, event) => {
+    var cartArray = [
+      {
+        product: data,
+        count: 0
+      }
+    ];
+
+    if (
+      this.state.ProductsSend.length === 0 ||
+      Object.values(this.state.ProductsSend[0]).includes(data) === false
+    ) {
+      this.state.ProductsSend.push(cartArray);
+    }
+
+    this.state.ProductsSend.map(datos => {
+      if (datos[0].product === data) {
+        datos[0].count = datos[0].count + 1;
+        document.getElementById("txtQuantity_" + data + "").innerText =
+          datos[0].count;
+      }
+    });
+
+    this.setState({ productsInCar: true });
+  };
+
+  handleDeleteProduct = (id, event) => {
+    var i = 0;
+    if (this.state.ProductsSend.length > 0) {
+      this.state.ProductsSend.map(datos => {
+        if (datos[0].product === id) {
+          if (datos[0].count > 0) {
+            datos[0].count = datos[0].count - 1;
+            if (datos[0].count === 0) {
+              this.state.ProductsSend.splice(i, 1);
+            }
+          }
+        }
+        i++;
+      });
+    }
+
+    if (this.state.ProductsSend.length === 0) {
+      this.setState({ productsInCar: false });
+    }
+    console.log(this.state.ProductsSend);
+  };
+
+  handleSendToCarClic = event => {
+    axios
+      .post(
+        "http://api-wpa.herokuapp.com/cart",
+        {
+          ProductsSend: this.state.ProductsSend
+        },
+        config
+      )
+      .then(result => {
+        if (result.status === 200) {
+          console.log(result.data.response, "y rol: ", result.data.rol);
+        } else {
+          console.log("Error...");
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   render() {
     const cookies = new Cookies();
     const user = cookies.get("user");
     const { classes } = this.props;
-    const idProducto = this.props.match.params.id;
 
-    this.handleSearchLocal(idProducto);
     return (
       <div className={classes.root}>
         <div>
@@ -129,6 +218,20 @@ class Details extends Component {
           </Grid>
         </Grid>
         <Grid xs={12}>
+          <Fade in={this.state.productsInCar}>
+            <Button
+              variant="contained"
+              color="primary"
+              className={
+                this.state.productsInCar === true
+                  ? classes.botonSendToCar
+                  : classes.btnHideSendToCar
+              }
+              onClick={e => this.handleSendToCarClic(e)}
+            >
+              Enviar a Carrito
+            </Button>
+          </Fade>
           <AppBar position="static" color="default">
             <Tabs
               value={this.state.value}
@@ -151,7 +254,7 @@ class Details extends Component {
               {this.state.Local.name}
             </TabContainer>
             <TabContainer dir={classes.direction}>
-              {this.state.Productos.map(tile => (
+              {this.state.ProductosMarket.map(tile => (
                 <Card className={classes.card}>
                   <CardActionArea>
                     <CardMedia
@@ -167,12 +270,27 @@ class Details extends Component {
                     </CardContent>
                   </CardActionArea>
                   <CardActions>
-                    <Button size="small" color="primary">
-                      Share
-                    </Button>
-                    <Button size="small" color="primary">
-                      Learn More
-                    </Button>
+                    <IconButton>
+                      <AddCircleOutline
+                        aria-label="Add"
+                        onClick={e => this.handleAddProduct(tile.id, e)}
+                      />
+                    </IconButton>
+                    <Input
+                      value="0"
+                      className={classes.input}
+                      disabled
+                      id={tile.id ? "txtQuantity_" + tile.id : ""}
+                      inputProps={{
+                        "aria-label": "Description"
+                      }}
+                    />
+                    <IconButton
+                      aria-label="Add"
+                      onClick={e => this.handleDeleteProduct(tile.id, e)}
+                    >
+                      <RemoveCircleOutline />
+                    </IconButton>
                   </CardActions>
                 </Card>
               ))}

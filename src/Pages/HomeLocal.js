@@ -62,7 +62,7 @@ class Home extends Component {
 
   handlePillUpProducto = () => {
     axios
-      .get("https://api-wpa.herokuapp.com/locales", config)
+      .get("http://api-wpa.herokuapp.com/locales", config)
       .then(result => {
         if (result.status === 200) {
           this.setState({ data: result.data });

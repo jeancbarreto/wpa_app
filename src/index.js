@@ -9,6 +9,7 @@ import * as serviceWorker from "./serviceWorker";
 //Paginas
 import Home from "../src/Pages/HomeLocal";
 import Detail from "../src/Pages/DetailsLocal";
+import Payment from "../src/Pages/Payment";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCRTvsrNppBUNVBWePdO_4ISoWiKItupw4",
@@ -25,7 +26,8 @@ const Root = () => {
       <Switch>
         <Route exact path="/" component={App} />
         <Route exact path="/home" component={Home} />
-        <Route path="/detail/:id" component={Detail} />
+        <Route exact path="/detail/:id" component={Detail} />
+        <Route exact path="/payment" component={Payment} />
       </Switch>
     </Router>
   );

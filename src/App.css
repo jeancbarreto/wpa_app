@@ -23,6 +23,9 @@
   color: #61dafb;
 }
 
+.MuiCardContent-root-261 {
+  background-color: red;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
