@@ -128,25 +128,30 @@ class Details extends Component {
   };
 
   handleAddProduct = (data, event) => {
-    const datosArray = [data, 1];
+    const datosArray = {
+      product: data,
+      quantity: 1
+    };
+
     var exist = true;
 
     if (this.state.ProductsSend.length === 0) {
       this.state.ProductsSend.push(datosArray);
+      document.getElementById("txtQuantity_" + data + "").value = 1;
     } else {
       this.state.ProductsSend.map(datos => {
-        if (datos[0] === data) {
-          datos[1] = datos[1] + 1;
-          document.getElementById("txtQuantity_" + data + "").value = datos[1];
+        if (datos.product === data) {
+          datos.quantity = datos.quantity + 1;
+          document.getElementById("txtQuantity_" + data + "").value =
+            datos.quantity;
           exist = false;
         }
       });
 
       if (exist) {
         this.state.ProductsSend.push(datosArray);
+        document.getElementById("txtQuantity_" + data + "").value = 1;
       }
-
-      console.log(this.state.ProductsSend);
     }
 
     this.setState({ productsInCar: true });
@@ -156,12 +161,15 @@ class Details extends Component {
     var i = 0;
     if (this.state.ProductsSend.length > 0) {
       this.state.ProductsSend.map(datos => {
-        if (datos[0].product === id) {
-          if (datos[0].quantity > 0) {
-            datos[0].quantity = datos[0].quantity - 1;
-            if (datos[0].quantity === 0) {
+        if (datos.product === id) {
+          if (datos.quantity > 0) {
+            datos.quantity = datos.quantity - 1;
+            if (datos.quantity === 0) {
               this.state.ProductsSend.splice(i, 1);
             }
+
+            document.getElementById("txtQuantity_" + id + "").value =
+              datos.quantity;
           }
         }
         i++;
@@ -171,7 +179,6 @@ class Details extends Component {
     if (this.state.ProductsSend.length === 0) {
       this.setState({ productsInCar: false });
     }
-    console.log(this.state.ProductsSend);
   };
 
   handleSendToCarClic = event => {
@@ -180,10 +187,10 @@ class Details extends Component {
     axios
       .post(
         "https://api-wpa.herokuapp.com/cart",
-        {
+        JSON.stringify({
           user: userid,
-          Products: this.state.ProductsSend
-        },
+          products: this.state.ProductsSend
+        }),
         config
       )
       .then(result => {
