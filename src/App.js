@@ -81,9 +81,8 @@ class App extends Component {
     this.setState({ user: result.user, Login: true });
     cookies.set("user", this.state.user, { path: "/" });
 
-    console.log(this.state.user);
     Axios.post(
-      "http://api-wpa.herokuapp.com/users",
+      "https://api-wpa.herokuapp.com/users",
       {
         name: this.state.user.displayName,
         email: this.state.user.email
@@ -92,7 +91,9 @@ class App extends Component {
     )
       .then(result => {
         if (result.status === 200) {
-          console.log(result.data.response, "y rol: ", result.data.rol);
+          const cookies_ = new Cookies();
+          console.log(result.data);
+          cookies_.set("iap", result.data.id, { path: "/" });
         } else {
           console.log("Error...");
         }

@@ -113,7 +113,7 @@ class Details extends Component {
 
   handleSearchLocal = id => {
     axios
-      .get("http://api-wpa.herokuapp.com/locales/" + id + "", config)
+      .get("https://api-wpa.herokuapp.com/locales/" + id + "", config)
       .then(result => {
         if (result.status === 200) {
           this.setState({
@@ -128,27 +128,26 @@ class Details extends Component {
   };
 
   handleAddProduct = (data, event) => {
-    var cartArray = [
-      {
-        product: data,
-        count: 0
-      }
-    ];
+    const datosArray = [data, 1];
+    var exist = true;
 
-    if (
-      this.state.ProductsSend.length === 0 ||
-      Object.values(this.state.ProductsSend[0]).includes(data) === false
-    ) {
-      this.state.ProductsSend.push(cartArray);
+    if (this.state.ProductsSend.length === 0) {
+      this.state.ProductsSend.push(datosArray);
+    } else {
+      this.state.ProductsSend.map(datos => {
+        if (datos[0] === data) {
+          datos[1] = datos[1] + 1;
+          document.getElementById("txtQuantity_" + data + "").value = datos[1];
+          exist = false;
+        }
+      });
+
+      if (exist) {
+        this.state.ProductsSend.push(datosArray);
+      }
+
+      console.log(this.state.ProductsSend);
     }
-
-    this.state.ProductsSend.map(datos => {
-      if (datos[0].product === data) {
-        datos[0].count = datos[0].count + 1;
-        document.getElementById("txtQuantity_" + data + "").innerText =
-          datos[0].count;
-      }
-    });
 
     this.setState({ productsInCar: true });
   };
@@ -158,9 +157,9 @@ class Details extends Component {
     if (this.state.ProductsSend.length > 0) {
       this.state.ProductsSend.map(datos => {
         if (datos[0].product === id) {
-          if (datos[0].count > 0) {
-            datos[0].count = datos[0].count - 1;
-            if (datos[0].count === 0) {
+          if (datos[0].quantity > 0) {
+            datos[0].quantity = datos[0].quantity - 1;
+            if (datos[0].quantity === 0) {
               this.state.ProductsSend.splice(i, 1);
             }
           }
@@ -176,11 +175,14 @@ class Details extends Component {
   };
 
   handleSendToCarClic = event => {
+    const cookies_ = new Cookies();
+    const userid = cookies_.get("iap");
     axios
       .post(
-        "http://api-wpa.herokuapp.com/cart",
+        "https://api-wpa.herokuapp.com/cart",
         {
-          ProductsSend: this.state.ProductsSend
+          user: userid,
+          Products: this.state.ProductsSend
         },
         config
       )
@@ -277,7 +279,6 @@ class Details extends Component {
                       />
                     </IconButton>
                     <Input
-                      value="0"
                       className={classes.input}
                       disabled
                       id={tile.id ? "txtQuantity_" + tile.id : ""}
