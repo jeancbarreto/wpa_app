@@ -219,15 +219,14 @@ class PrimarySearchAppBar extends React.Component {
               </IconButton>
             </div>
             <div className={classes.sectionMobile}>
+              <IconButton href="/payment/">
+                <ShoppinCart /> :
+              </IconButton>
               <IconButton
                 aria-haspopup="true"
                 onClick={this.handleMobileMenuOpen}
                 color="inherit"
               >
-                <IconButton>
-                  <ShoppinCart /> :
-                </IconButton>
-
                 <Avatar aria-label="Recipe" className={classes.avatar}>
                   <img src={user.photoURL} alt="" className={classes.Photo} />
                 </Avatar>

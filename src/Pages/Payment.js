@@ -4,12 +4,14 @@ import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
-import RemoveCircleOutline from "@material-ui/icons/RemoveCircleOutline";
+import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
 import IconButton from "@material-ui/core/IconButton";
-import CommentIcon from "@material-ui/icons/Comment";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import Typography from "@material-ui/core/Typography";
+import Divider from "@material-ui/core/Divider";
+import Button from "@material-ui/core/Button";
+import Avatar from "@material-ui/core/Avatar";
+import ImageIcon from "@material-ui/icons/Image";
 import axios from "axios";
 import Menu from "../Components/Menu";
 import Cookies from "universal-cookie";
@@ -24,6 +26,16 @@ const styles = theme => ({
   },
   inline: {
     display: "inline"
+  },
+  botonSendToCar: {
+    display: "block",
+    width: "100%",
+    position: "fixed",
+    zIndex: 1000,
+    bottom: 0
+  },
+  btnHideSendToCar: {
+    display: "none"
   }
 });
 
@@ -39,8 +51,30 @@ class Payment extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      cart: []
+    };
+
+    this.handleGetCart();
   }
+
+  handleGetCart = () => {
+    const userid = cookies.get("iap");
+
+    axios
+      .get("https://api-wpa.herokuapp.com/users/" + userid + "", config)
+      .then(result => {
+        if (result.status === 200) {
+          this.setState({ cart: result.data.cart });
+          console.log("cart", this.state.cart);
+        } else {
+          console.log("Error...");
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
 
   render() {
     const user = cookies.get("user");
@@ -54,18 +88,39 @@ class Payment extends Component {
         </div>
         <div className={classes.root}>
           <List className={classes.root}>
-            {[0, 1, 2, 3].map(value => (
-              <ListItem key={value} role={undefined} dense button>
-                <ListItemText primary={`Line item ${value + 1}`} />
-                <ListItemSecondaryAction>
-                  <IconButton aria-label="Add">
-                    <AddCircleOutline />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
+            {this.state.cart.map(value => (
+              <div>
+                <ListItem key={value.name} role={undefined} dense button>
+                  <Avatar>
+                    <ImageIcon />
+                  </Avatar>
+                  <ListItemText
+                    primary={value.name}
+                    secondary={"Cantidad: " + value.quantity}
+                  />
+
+                  <ListItemSecondaryAction>
+                    <IconButton aria-label="Delete">
+                      <DeleteOutlinedIcon className={classes.icon} />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+              </div>
             ))}
           </List>
         </div>
+        <Button
+          variant="contained"
+          color="primary"
+          className={
+            this.state.cart.length > 0
+              ? classes.botonSendToCar
+              : classes.btnHideSendToCar
+          }
+        >
+          Pagar
+        </Button>
       </div>
     );
   }
