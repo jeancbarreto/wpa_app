@@ -92,7 +92,6 @@ class App extends Component {
       .then(result => {
         if (result.status === 200) {
           const cookies_ = new Cookies();
-          console.log(result.data);
           cookies_.set("iap", result.data.id, { path: "/" });
         } else {
           console.log("Error...");

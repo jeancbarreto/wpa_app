@@ -36,6 +36,9 @@ const styles = theme => ({
   },
   btnHideSendToCar: {
     display: "none"
+  },
+  spaceTotal:{
+    marginLeft:'4%'
   }
 });
 
@@ -52,10 +55,27 @@ class Payment extends Component {
     super(props);
 
     this.state = {
-      cart: []
+      cart: [],
+      Total:0
     };
 
     this.handleGetCart();
+  }
+
+  handlePayCart = (event) =>{
+    const userid = cookies.get("iap");
+    axios.post("https://api-wpa.herokuapp.com/user/" + userid + "/pay/", {
+      Total:this.state.Total
+    }, config).then(result => {
+      if (result.status === 200) {
+        alert("Pagado con Exito");
+      } else {
+        console.log("Error...");
+      }
+    })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   handleGetCart = () => {
@@ -65,10 +85,17 @@ class Payment extends Component {
       .get("https://api-wpa.herokuapp.com/users/" + userid + "", config)
       .then(result => {
         if (result.status === 200) {
+          var total = 0;
           this.setState({ cart: result.data.cart });
-          console.log("cart", this.state.cart);
+          this.state.cart.map(value => {
+            var valor = value.individual_cost * value.quantity;
+            
+            total = (parseInt(total) + parseInt(valor));
+          })
+
+          this.setState({Total:total});
         } else {
-          console.log("Error...");
+          console.log("Error...", result.status);
         }
       })
       .catch(err => {
@@ -96,7 +123,12 @@ class Payment extends Component {
                   </Avatar>
                   <ListItemText
                     primary={value.name}
-                    secondary={"Cantidad: " + value.quantity}
+                    secondary={
+                      "Cantidad: " +
+                      value.quantity +
+                      " || Precio: $" +
+                      value.individual_cost * value.quantity
+                    }
                   />
 
                   <ListItemSecondaryAction>
@@ -110,6 +142,9 @@ class Payment extends Component {
             ))}
           </List>
         </div>
+        <Typography className={classes.spaceTotal} variant="h6" component="h4">
+            <b>Total a Pagar: {"$"+this.state.Total}</b>
+        </Typography>
         <Button
           variant="contained"
           color="primary"
@@ -118,6 +153,7 @@ class Payment extends Component {
               ? classes.botonSendToCar
               : classes.btnHideSendToCar
           }
+          onClick={e => this.handlePayCart(e)}
         >
           Pagar
         </Button>
