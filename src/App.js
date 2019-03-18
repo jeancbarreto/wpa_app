@@ -40,28 +40,26 @@ const styles = theme => ({
     margin: theme.spacing.unit
   }
 });
-
+const cookies = new Cookies();
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       user: [],
-      Login: false
+      Login: false,
+      info:[]
     };
 
     this.handleValidateExisteCookie();
   }
 
   handleValidateExisteCookie = () => {
-    const cookies = new Cookies();
-    if (this.state.user === []) {
       this.setState({ user: cookies.get("user") });
-
-      if (this.state.user !== []) {
+      if(this.state.user.length > 0){
         this.setState({ Login: true });
       }
-    }
+      this.setState({ info: cookies.get("iap")})
   };
 
   handleAuth = () => {
@@ -77,7 +75,6 @@ class App extends Component {
   };
 
   handleChangeUser = result => {
-    const cookies = new Cookies();
     this.setState({ user: result.user, Login: true });
     cookies.set("user", this.state.user, { path: "/" });
 
@@ -92,7 +89,8 @@ class App extends Component {
       .then(result => {
         if (result.status === 200) {
           const cookies_ = new Cookies();
-          cookies_.set("iap", result.data.id, { path: "/" });
+          cookies_.set("iap", result.data, { path: "/" });
+          this.setState({info:result.data});
         } else {
           console.log("Error...");
         }
@@ -103,11 +101,16 @@ class App extends Component {
   };
 
   render() {
+    
+    const user = this.state.user;
+    console.log("user", user);
+    
+    const Data = this.state.info;
     const { classes } = this.props;
-    this.handleValidateExisteCookie();
     return (
       <div className="App">
-        {this.state.Login ? <Menu user={this.state.user} /> : null}
+        
+        {this.state.Login === true ? <Menu user={user} /> : null}
         <header className="App-header">
           <Grid xs={12} className="paperClass">
             <img src={logo} className="App-logo" alt="logo" />
@@ -116,7 +119,7 @@ class App extends Component {
           <Grid xs={12}>
             <Fade in={this.state.Login}>
               <div>
-                <h5>Hola {this.state.user.displayName}</h5>
+                <h5>Hola {user.displayName}</h5>
                 <p />
                 <Button
                   variant="contained"
@@ -127,6 +130,24 @@ class App extends Component {
                   <NavigationIcon className={classes.extendedIcon} />
                   Locales
                 </Button>
+                {Data.rol === "super_admin"? <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.button}
+                  href="/Sadmin"
+                >
+                  <NavigationIcon className={classes.extendedIcon} />
+                  Admin
+                </Button> : ""}
+                {Data.rol === "super_admin" || Data.rol === "admin" ? <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.button}
+                  href="/admin"
+                >
+                  <NavigationIcon className={classes.extendedIcon} />
+                  Administrar locales
+                </Button> : ""}
               </div>
             </Fade>
           </Grid>
@@ -142,7 +163,8 @@ class App extends Component {
                   : classes.HideButton
               }
             >
-              <NavigationIcon className={classes.extendedIcon} />
+            
+            <NavigationIcon className={classes.extendedIcon} />
               Iniciar Sesión con Google
             </Fab>
           </Fade>

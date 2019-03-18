@@ -79,7 +79,7 @@ class Home extends Component {
     return (
       <div className={classes.root}>
         <div>
-          {user !== undefined ? <Menu user={user} title="Locales" /> : null}
+          {user !== undefined ? <Menu user={user} title="Locales" type="Atras" /> : null}
         </div>
 
         <GridList cellHeight={180} className={classes.gridList}>

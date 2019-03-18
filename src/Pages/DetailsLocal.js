@@ -181,21 +181,23 @@ class Details extends Component {
     }
   };
 
-  handleSendToCarClic = event => {
+  handleSendToCarClic = (id, event) => {
     const cookies_ = new Cookies();
     const userid = cookies_.get("iap");
     axios
       .post(
         "https://api-wpa.herokuapp.com/cart",
         JSON.stringify({
-          user: userid,
+          user: userid.id,
           products: this.state.ProductsSend
         }),
         config
       )
       .then(result => {
         if (result.status === 200) {
-          console.log(result.data.response, "y rol: ", result.data.rol);
+          alert("Guardado con Exito");
+          this.setState({ProductsSend:[]})
+          document.getElementById("txtQuantity_" + id + "").value = 0
         } else {
           console.log("Error...");
         }

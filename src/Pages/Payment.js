@@ -64,7 +64,7 @@ class Payment extends Component {
 
   handlePayCart = (event) =>{
     const userid = cookies.get("iap");
-    axios.post("https://api-wpa.herokuapp.com/user/" + userid + "/pay/", {
+    axios.post("https://api-wpa.herokuapp.com/user/" + userid.id + "/pay/", {
       Total:this.state.Total
     }, config).then(result => {
       if (result.status === 200) {
@@ -82,7 +82,7 @@ class Payment extends Component {
     const userid = cookies.get("iap");
 
     axios
-      .get("https://api-wpa.herokuapp.com/users/" + userid + "", config)
+      .get("https://api-wpa.herokuapp.com/users/" + userid.id + "", config)
       .then(result => {
         if (result.status === 200) {
           var total = 0;
@@ -118,8 +118,8 @@ class Payment extends Component {
             {this.state.cart.map(value => (
               <div>
                 <ListItem key={value.name} role={undefined} dense button>
-                  <Avatar>
-                    <ImageIcon />
+                  <Avatar src={value.image}>
+                   
                   </Avatar>
                   <ListItemText
                     primary={value.name}
