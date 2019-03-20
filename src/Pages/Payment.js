@@ -15,7 +15,9 @@ import ImageIcon from "@material-ui/icons/Image";
 import axios from "axios";
 import Menu from "../Components/Menu";
 import Cookies from "universal-cookie";
+import QRcode from 'qrcode.react';
 import "../App.css";
+import { Fade } from "@material-ui/core";
 
 const styles = theme => ({
   root: {
@@ -39,6 +41,11 @@ const styles = theme => ({
   },
   spaceTotal:{
     marginLeft:'4%'
+  },
+  qr:{
+    width:'100%',
+    margin:50
+    
   }
 });
 
@@ -56,10 +63,15 @@ class Payment extends Component {
 
     this.state = {
       cart: [],
+      code:"",
       Total:0
     };
 
     this.handleGetCart();
+  }
+
+  handledCreateQrCode = (code) => {
+   
   }
 
   handlePayCart = (event) =>{
@@ -68,6 +80,9 @@ class Payment extends Component {
       Total:this.state.Total
     }, config).then(result => {
       if (result.status === 200) {
+        this.setState({code: result.data.response});
+        console.log(this.state.code);
+        this.handleGetCart();
         alert("Pagado con Exito");
       } else {
         console.log("Error...");
@@ -145,6 +160,9 @@ class Payment extends Component {
         <Typography className={classes.spaceTotal} variant="h6" component="h4">
             <b>Total a Pagar: {"$"+this.state.Total}</b>
         </Typography>
+        <Fade in={this.state.code !== ""}>
+            <QRcode className={classes.qr} value={this.state.code}/>
+        </Fade>
         <Button
           variant="contained"
           color="primary"

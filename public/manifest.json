@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Spotnigth",
+  "name": "App Spotnigth",
   "icons": [
     {
       "src": "bulb-curvy-flat.png",
@@ -15,5 +15,5 @@
   "background_color": "#000000",
   "related_applications": [],
   "prefer_related_applications": false,
-  "pathApi": "http: //192.168.0.18:3000/locales"
+  "pathApi": "http: //192.168.0.18:3000/"
 }

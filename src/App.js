@@ -48,18 +48,24 @@ class App extends Component {
     this.state = {
       user: [],
       Login: false,
-      info:[]
+      info:[],
+      existCookie : false
     };
 
     this.handleValidateExisteCookie();
   }
 
   handleValidateExisteCookie = () => {
-      this.setState({ user: cookies.get("user") });
-      if(this.state.user.length > 0){
+
+    var cookiesUser =  cookies.get("user");
+    this.setState({ user: cookiesUser });
+      if(this.state.user !== []){
         this.setState({ Login: true });
       }
       this.setState({ info: cookies.get("iap")})
+
+      console.log("Logeado: " , this.state.Login);
+      console.log("userDatos: ", this.state.info );
   };
 
   handleAuth = () => {
@@ -101,12 +107,10 @@ class App extends Component {
   };
 
   render() {
-    
     const user = this.state.user;
-    console.log("user", user);
-    
     const Data = this.state.info;
     const { classes } = this.props;
+    
     return (
       <div className="App">
         
@@ -129,6 +133,15 @@ class App extends Component {
                 >
                   <NavigationIcon className={classes.extendedIcon} />
                   Locales
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.button}
+                  href="/scanner"
+                >
+                  <NavigationIcon className={classes.extendedIcon} />
+                  Escanear QR
                 </Button>
                 {Data.rol === "super_admin"? <Button
                   variant="contained"

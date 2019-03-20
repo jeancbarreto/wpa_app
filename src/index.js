@@ -12,6 +12,7 @@ import Detail from "../src/Pages/DetailsLocal";
 import Payment from "../src/Pages/Payment";
 import Sadmin from "../src/Pages/SuperAdmin";
 import admin from "../src/Pages/Admin";
+import scanner from "../src/Pages/qrScanner";
 
 firebase.initializeApp({
   apiKey: "AIzaSyCRTvsrNppBUNVBWePdO_4ISoWiKItupw4",
@@ -32,6 +33,7 @@ const Root = () => {
         <Route exact path="/payment" component={Payment} />
         <Route exact path="/sadmin" component={Sadmin} />
         <Route exact path="/admin" component={admin} />
+        <Route exact path="/scanner" component={scanner} />
       </Switch>
     </Router>
   );

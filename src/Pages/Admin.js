@@ -23,6 +23,7 @@ import Divider from "@material-ui/core/Divider";
 import Avatar from "@material-ui/core/Avatar";
 import Cookies from "universal-cookie";
 import firebase from "firebase";
+import Modal from '@material-ui/core/Modal';
 import "../App.css";
 
 function TabContainer(props) {
@@ -44,7 +45,7 @@ const styles = theme => ({
         backgroundColor: theme.palette.background.paper
     },
     rootList: {
-        paddingTop: "15%",
+        paddingTop: "1%",
         width: "100%",
         backgroundColor: theme.palette.background.paper
     },
@@ -84,9 +85,29 @@ const styles = theme => ({
     },
     tabSadmin: {
         width: '50%'
-    }
+    },
+    paper: {
+        position: 'absolute',
+        width: '68%',
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing.unit * 4,
+        outline: 'none',
+    },
 });
 
+function rand() {
+    return Math.round(Math.random() * 20) - 10;
+}
+
+function getModalStyle() {
+
+    return {
+        top: `50%`,
+        left: `50%`,
+        transform: `translate(-50%, -50%)`,
+    };
+}
 
 const config = {
     headers: {
@@ -107,6 +128,13 @@ class Admin extends Component {
             image_form:"",
             image:"",
             value: 0,
+            open:false,
+            nameProduct:"",
+            descriptionPro:"",
+            imageProduct:"",
+            imageProductForm:"",
+            cost:0,
+            localId:0,
             listLocales: []
         };
 
@@ -120,7 +148,7 @@ class Admin extends Component {
             .then(result => {
                 if (result.status === 200) {
                     this.setState({
-                        listLocales: result.data.response
+                        listLocales: result.data
                     });
                 }
             })
@@ -147,26 +175,72 @@ class Admin extends Component {
         });
     };
 
+    handleOpen = (id) => {
+        this.setState({ open: true, localId:id });
+    };
+
+    handleClose = () => {
+        this.setState({ open: false });
+    };
+
     handleChangeImageUpload = (e) =>{
         var fileName = e.target.files[0].name;
         var file = e.target.files[0];
+        const storageBef = firebase.storage().ref('/img_spotnigth/').child(fileName);
+        storageBef.put(file);
+        storageBef.getDownloadURL().then(url => {
+            this.setState({image:url});
+        });
 
-        const storageBef = firebase.storage().ref('/img_spotnigth/'+fileName+'');
+        this.setState({ image_form: fileName })
         const task = storageBef.put(file);
-        this.setState({ image: 'gs://' + window.location.hostname+'/img_spotnigth/'+fileName+'', image_form:fileName});
+    }
+
+    handleChangeImageUploadProduct = (e) => {
+        var fileName = e.target.files[0].name;
+        var file = e.target.files[0];
+
+        const storageBef = firebase.storage().ref('/img_spotnigth/').child(fileName);
+        storageBef.put(file);
+        storageBef.getDownloadURL().then(url => {
+            this.setState({ imageProduct: url });
+        });
+        this.setState({imageProductForm: fileName})
+        
     }
 
     handleCreateLocal = () => {
         const userid = cookies.get("iap");
         axios.post("https://api-wpa.herokuapp.com/locales", {
-            id: userid.id,
+            admin: userid.id,
             name: this.state.name,
             description: this.state.description,
             direction:this.state.direction,
             image:this.state.image
         }, config).then(result => {
-            alert("Local Creado");
-            this.setState({ name: "", email: "", description: "", direction:"", image:"", image_form:"" });
+            if(result.status === 200){
+                alert("Local Creado");
+                this.handleGetAdmin();
+                this.setState({ name: "", email: "", description: "", direction: "", image: "", image_form: "" });
+            }
+        }).catch(error => {
+            console.log(error);
+        })
+    }
+
+    handleCreateProducts = () =>{
+        const userid = cookies.get("iap");
+        axios.post("https://api-wpa.herokuapp.com/locale/product/create", {
+            admin: userid.id,
+            locale: this.state.localId,
+            name: this.state.nameProduct,
+            description: this.state.descriptionPro,
+            image: this.state.imageProduct
+        }, config).then(result => {
+            if (result.status === 200) {
+                alert("Producto Creado");
+                this.setState({ nameProduct: "", descriptionPro: "", localId: 0, cost: 0, imageProduct: "", imageProductForm: "" });
+            }
         }).catch(error => {
             console.log(error);
         })
@@ -245,15 +319,15 @@ class Admin extends Component {
                                                     margin="normal"
                                                     variant="outlined"
                                                 />
-                                            <input
-                                                accept="image/*"
-                                                className={classes.input}
-                                                style={{ display: 'none' }}
-                                                id="raised-button-file"
-                                                onChange={e => this.handleChangeImageUpload(e)}
-                                                multiple
-                                                type="file"
-                                            />
+                                                <input
+                                                    accept="image/*"
+                                                    className={classes.input}
+                                                    style={{ display: 'none' }}
+                                                    id="raised-button-file"
+                                                    onChange={e => this.handleChangeImageUpload(e)}
+                                                    multiple
+                                                    type="file"
+                                                />
                                                 <label htmlFor="raised-button-file">
                                                     <Button variant="raised" component="span" className={classes.buttonUpload} >
                                                         Subir imagen
@@ -286,16 +360,14 @@ class Admin extends Component {
                                             <List className={classes.rootList}>
                                                 {this.state.listLocales.map(value => (
                                                     <div>
-                                                        <ListItem key={value.name} role={undefined} dense button>
+                                                        <ListItem key={value.name} role={undefined} dense button onClick={e => this.handleOpen(e, value.id)}>
                                                             <Avatar src={value.image}>
 
                                                             </Avatar>
                                                             <ListItemText
                                                                 primary={value.name}
                                                                 secondary={
-                                                                    "EMAIL: " +
-                                                                    value.email +
-                                                                    " || Fecha: $" +
+                                                                    "Fecha: " +
                                                                     value.created_at
                                                                 }
                                                             />
@@ -310,7 +382,84 @@ class Admin extends Component {
                                                     </div>
                                                 ))}
                                             </List>
+                                        <Modal
+                                            aria-labelledby="simple-modal-title"
+                                            aria-describedby="simple-modal-description"
+                                            open={this.state.open}
+                                            onClose={this.handleClose}
+                                        >
+                                            <div style={getModalStyle()} className={classes.paper}>
+                                            <Typography variant="h6" id="modal-title">
+                                                    Producto
+                                            </Typography>
+                                            <Typography variant="subtitle1" id="simple-modal-description">
+                                                    Agregar Productos
+                                            </Typography>
+                                                <form className={classes.container} noValidate autoComplete="off">
+                                                   
+                                                        <TextField
+                                                            id="outlined-name"
+                                                            label="Name"
+                                                            className={classes.textField}
+                                                             value={this.state.nameProduct}
+                                                            onChange={this.handleChangeForm('nameProduct')}
+                                                            margin="normal"
+                                                            variant="outlined"
+                                                        />
+                                                        <TextField
+                                                            id="outlined-name"
+                                                            label="Cost"
+                                                            className={classes.textField}
+                                                            value={this.state.cost}
+                                                            onChange={this.handleChangeForm('cost')}
+                                                            margin="normal"
+                                                            variant="outlined"
+                                                        />
+                                                        <TextField
+                                                            id="outlined-name"
+                                                            label="Description"
+                                                            className={classes.textField}
+                                                        value={this.state.descriptionPro}
+                                                        onChange={this.handleChangeForm('descriptionPro')}
+                                                            margin="normal"
+                                                            variant="outlined"
+                                                        />
+                                                        <TextField
+                                                            id="outlined-name"
+                                                            label="Image"
+                                                            className={classes.textField}
+                                                             value={this.state.imageProductForm}
+                                                            onChange={this.handleChangeForm('imageProductForm')}
+                                                            margin="normal"
+                                                            variant="outlined"
+                                                        />
+                                                        <input
+                                                            accept="image/*"
+                                                            className={classes.input}
+                                                            style={{ display: 'none' }}
+                                                            id="raised-button-file-two"
+                                                            onChange={e => this.handleChangeImageUploadProduct(e)}
+                                                            multiple
+                                                            type="file"
+                                                        />
+                                                        <label htmlFor="raised-button-file-two">
+                                                            <Button variant="raised" component="span" className={classes.buttonUpload} >
+                                                                Subir imagen
+                                                            </Button>
+                                                        </label>
+                                                        <Button
+                                                            variant="contained"
+                                                            color="primary"
+                                                            className={classes.buttonUpload}
+                                                            onClick={e => this.handleCreateProducts(e)}
+                                                            >
+                                                            Agregar
+                                                        </Button>
+                                                    
 
+                                                </form>
+                                            </div>
+                                        </Modal>
                                         </div>
                                     </div>
                                 </Grid>
